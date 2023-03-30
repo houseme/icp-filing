@@ -1,4 +1,4 @@
-module github.com/houseme/icp_filing
+module github.com/houseme/icp-filing
 
 go 1.20
 

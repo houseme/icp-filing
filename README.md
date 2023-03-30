@@ -22,7 +22,7 @@ import (
     "context"
     "fmt"
     
-    filing "github.com/houseme/icp_filing"
+    filing "github.com/houseme/icp-filing"
 )
 
 func main() {
