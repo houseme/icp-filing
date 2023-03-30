@@ -70,7 +70,7 @@ func WithLogPath(path string) Option {
 }
 
 // New .
-func New(ctx context.Context, opts ...Option) *Filling {
+func New(_ context.Context, opts ...Option) *Filling {
 	var op = options{
 		LogPath: os.TempDir(),
 	}
