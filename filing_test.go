@@ -38,7 +38,6 @@ func TestICP_Md5(t *testing.T) {
 		args   args
 		want   string
 	}{
-		// TODO: Add test cases.
 		{
 			name: "test",
 			fields: fields{
@@ -74,7 +73,6 @@ func TestICP_String(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		// TODO: Add test cases.
 		{
 			name:   "test",
 			fields: fields{token: defaultToken, ip: "101,110,123,124"},
@@ -108,7 +106,6 @@ func TestICP_authorize(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "test",
 			fields: fields{
@@ -145,7 +142,6 @@ func TestICP_getIP(t *testing.T) {
 		name   string
 		fields fields
 	}{
-		// TODO: Add test cases.
 		{
 			name: "test",
 		},
