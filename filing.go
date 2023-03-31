@@ -150,7 +150,7 @@ func (i *Filling) authorize(ctx context.Context) error {
 				AuthKey:   i.md5("testtest" + timestamp),
 				Timestamp: timestamp,
 			},
-			QueryRequest: &QueryRequest{},
+			QueryRequest: nil,
 			Path:         authorizePath,
 			ContentType:  authorizeContentType,
 		})
@@ -175,7 +175,7 @@ func (i *Filling) authorize(ctx context.Context) error {
 func (i *Filling) QueryFilling(ctx context.Context, req *QueryRequest) (*QueryResponse, error) {
 	resp, err := i.doRequest(ctx, &ParamInput{
 		QueryRequest:     req,
-		AuthorizeRequest: &AuthorizeRequest{},
+		AuthorizeRequest: nil,
 		ContentType:      queryContentType,
 		Path:             queryPath,
 	})

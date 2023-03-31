@@ -167,5 +167,12 @@ type ParamInput struct {
 
 // String string
 func (r *ParamInput) String() string {
+	if r.QueryRequest == nil {
+		return `{"authorizeRequest": ` + r.AuthorizeRequest.String() + `, "path": "` + r.Path + `", "contentType": "` + r.ContentType + `"}`
+	}
+	if r.AuthorizeRequest == nil {
+		return `{"queryRequest": ` + r.QueryRequest.String() + `, "path": "` + r.Path + `", "contentType": "` + r.ContentType + `"}`
+	}
+
 	return `{"authorizeRequest": ` + r.AuthorizeRequest.String() + `, "queryRequest": ` + r.QueryRequest.String() + `, "path": "` + r.Path + `", "contentType": "` + r.ContentType + `"}`
 }
