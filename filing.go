@@ -49,14 +49,16 @@ const (
 	defaultToken = "0"
 )
 
-// Filling number
+// Filling is the icp filling number object
 type Filling struct {
 	token string
 	ip    string
 }
 
 type options struct {
-	LogPath  string
+	// LogPath is the path of log file.
+	LogPath string
+	// LogLevel is the level of log.
 	LogLevel hlog.Level
 }
 
@@ -77,7 +79,7 @@ func WithLogLevel(level hlog.Level) Option {
 	}
 }
 
-// New .
+// New return a new filling number object
 func New(_ context.Context, opts ...Option) *Filling {
 	var op = options{
 		LogPath:  os.TempDir(),
@@ -194,12 +196,12 @@ func (i *Filling) md5(str string) string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(str))) // 将[]byte转成16进制
 }
 
-// String return json string
+// String return filling json string
 func (i *Filling) String() string {
 	return `{"ip":"` + i.ip + `","token":"` + i.token + `"}`
 }
 
-// DomainFilling .
+// DomainFilling query domain filling number
 func (i *Filling) DomainFilling(ctx context.Context, req *QueryRequest) (*QueryResponse, error) {
 	if err := i.authorize(ctx); err != nil {
 		return nil, err

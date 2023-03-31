@@ -31,7 +31,7 @@ type QueryRequest struct {
 	UnitName string `json:"unitName"`
 }
 
-// String string
+// String return query request string
 func (r *QueryRequest) String() string {
 	return `{"pageNum": "` + r.PageNum + `", "pageSize": "` + r.PageSize + `", "unitName": "` + r.UnitName + `"}`
 }
@@ -44,7 +44,7 @@ type QueryResponse struct {
 	Params  *QueryParams `json:"params"`
 }
 
-// String string
+// String return query response string
 func (r *QueryResponse) String() string {
 	return `{"code": ` + strconv.Itoa(r.Code) + `, "msg": "` + r.Msg + `", "success": ` + strconv.FormatBool(r.Success) + `, "params": ` + r.Params.String() + `}`
 }
@@ -78,7 +78,7 @@ type QueryParams struct {
 	Total            int           `json:"total"`
 }
 
-// String string
+// String return query params string
 func (r *QueryParams) String() string {
 	return `{"endRow": ` + strconv.Itoa(r.EndRow) + `, "firstPage": ` + strconv.Itoa(r.FirstPage) + `, "hasNextPage": ` + strconv.FormatBool(r.HasNextPage) + `, "hasPreviousPage": ` + strconv.FormatBool(r.HasPreviousPage) + `, "isFirstPage": ` + strconv.FormatBool(r.IsFirstPage) + `, "isLastPage": ` + strconv.FormatBool(r.IsLastPage) + `, "lastPage": ` + strconv.Itoa(r.LastPage) + `, "list": ` + r.ParamsListString() + `, "navigatePages": ` + strconv.Itoa(r.NavigatePages) + `, "navigatepageNums": ` + r.NavigatePageNumsString() + `, "nextPage": ` + strconv.Itoa(r.NextPage) + `, "pageNum": ` + strconv.Itoa(r.PageNum) + `, "pageSize": ` + strconv.Itoa(r.PageSize) + `, "pages": ` + strconv.Itoa(r.Pages) + `, "prePage": ` + strconv.Itoa(r.PrePage) + `, "size": ` + strconv.Itoa(r.Size) + `, "startRow": ` + strconv.Itoa(r.StartRow) + `, "total": ` + strconv.Itoa(r.Total) + `}`
 }
@@ -95,7 +95,7 @@ func (r *QueryParams) NavigatePageNumsString() string {
 	return output
 }
 
-// ParamsListString params list
+// ParamsListString return params list to string
 func (r *QueryParams) ParamsListString() string {
 	if r.List == nil || len(r.List) < 1 {
 		return ""
@@ -125,7 +125,7 @@ type DomainInfo struct {
 	UpdateRecordTime string `json:"updateRecordTime"`
 }
 
-// String string
+// String return domain info string
 func (r *DomainInfo) String() string {
 	return `{"contentTypeName": "` + r.ContentTypeName + `", "domain": "` + r.Domain + `", "domainId": ` + strconv.FormatInt(r.DomainID, 10) + `, "homeUrl": "` + r.HomeURL + `", "leaderName": "` + r.LeaderName + `", "limitAccess": "` + r.LimitAccess + `", "mainId": ` + strconv.FormatInt(r.MainID, 10) + `, "mainLicence": "` + r.MainLicence + `", "natureName": "` + r.NatureName + `", "serviceId": ` + strconv.FormatInt(r.ServiceID, 10) + `, "serviceLicence": "` + r.ServiceLicence + `", "serviceName": "` + r.ServiceName + `", "unitName": "` + r.UnitName + `", "updateRecordTime": "` + r.UpdateRecordTime + `}`
 }
@@ -136,7 +136,7 @@ type AuthorizeRequest struct {
 	Timestamp string `json:"timeStamp"`
 }
 
-// String string
+// String return authorizes request string
 func (r *AuthorizeRequest) String() string {
 	return `{"authKey": "` + r.AuthKey + `", "timeStamp": "` + r.Timestamp + `"}`
 }
@@ -157,7 +157,7 @@ type QueryResp struct {
 	Date      string `json:"date"`
 }
 
-// ParamInput request
+// ParamInput request params
 type ParamInput struct {
 	AuthorizeRequest *AuthorizeRequest
 	QueryRequest     *QueryRequest
@@ -165,7 +165,7 @@ type ParamInput struct {
 	ContentType      string
 }
 
-// String string
+// String request params string
 func (r *ParamInput) String() string {
 	if r.QueryRequest == nil {
 		return `{"authorizeRequest": ` + r.AuthorizeRequest.String() + `, "path": "` + r.Path + `", "contentType": "` + r.ContentType + `"}`

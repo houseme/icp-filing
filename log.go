@@ -86,7 +86,7 @@ func initLog(path string, level hlog.Level) {
 
 // humanEncoderConfig copy from zap
 func humanEncoderConfig() zapcore.EncoderConfig {
-	cfg := testEncoderConfig()
+	cfg := encoderConfig()
 	cfg.EncodeTime = zapcore.ISO8601TimeEncoder
 	cfg.EncodeLevel = zapcore.CapitalLevelEncoder
 	cfg.EncodeDuration = zapcore.StringDurationEncoder
@@ -105,8 +105,8 @@ func getWriteSyncer(file string) zapcore.WriteSyncer {
 	return zapcore.AddSync(lumberJackLogger)
 }
 
-// testEncoderConfig encoder config for testing, copy from zap
-func testEncoderConfig() zapcore.EncoderConfig {
+// encoderConfig encoder config for testing, copy from zap
+func encoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
 		MessageKey:     "msg",
 		LevelKey:       "level",

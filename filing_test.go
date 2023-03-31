@@ -48,7 +48,7 @@ func TestICP_Md5(t *testing.T) {
 				ip:    "127.0.0.1",
 			},
 			args: args{
-				str: "test",
+				str: "TestICP_Md5",
 			},
 			want: "098f6bcd4621d373cade4e832627b4f6",
 		},
@@ -77,7 +77,7 @@ func TestICP_String(t *testing.T) {
 		want   string
 	}{
 		{
-			name:   "test",
+			name:   "TestICP_String",
 			fields: fields{token: defaultToken, ip: "101,110,123,124"},
 			want:   `{"ip":"101,110,123,124","token":"0"}`,
 		},
@@ -110,7 +110,7 @@ func TestICP_authorize(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "test",
+			name: "TestICP_authorize",
 			fields: fields{
 				token: "0",
 				ip:    "101.123.124.119",
