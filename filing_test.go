@@ -42,13 +42,13 @@ func TestICP_Md5(t *testing.T) {
 		want   string
 	}{
 		{
-			name: "test",
+			name: "TestICP_Md5",
 			fields: fields{
 				token: "0",
 				ip:    "127.0.0.1",
 			},
 			args: args{
-				str: "TestICP_Md5",
+				str: "test",
 			},
 			want: "098f6bcd4621d373cade4e832627b4f6",
 		},
