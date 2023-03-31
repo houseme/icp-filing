@@ -56,7 +56,8 @@ type Filling struct {
 }
 
 type options struct {
-	LogPath string
+	LogPath  string
+	LogLevel hlog.Level
 }
 
 // Option is the option for logger.
@@ -69,21 +70,27 @@ func WithLogPath(path string) Option {
 	}
 }
 
+// WithLogLevel is the option for log level.
+func WithLogLevel(level hlog.Level) Option {
+	return func(o *options) {
+		o.LogLevel = level
+	}
+}
+
 // New .
 func New(_ context.Context, opts ...Option) *Filling {
 	var op = options{
-		LogPath: os.TempDir(),
+		LogPath:  os.TempDir(),
+		LogLevel: hlog.LevelDebug,
 	}
 	for _, opt := range opts {
 		opt(&op)
 	}
-	initLog(op.LogPath)
-	f := &Filling{
+	initLog(op.LogPath, op.LogLevel)
+	return &Filling{
 		token: defaultToken,
 		ip:    "101." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255)),
 	}
-	f.initClientIP()
-	return f
 }
 
 // doRequest execute request
@@ -132,13 +139,6 @@ func (i *Filling) doRequest(ctx context.Context, in *ParamInput) ([]byte, error)
 	}
 
 	return res.Body(), nil
-}
-
-// initClientIP client ip
-func (i *Filling) initClientIP() {
-	if i.ip == "" {
-		i.ip = "101." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255))
-	}
 }
 
 // authorize .
@@ -201,8 +201,7 @@ func (i *Filling) String() string {
 
 // DomainFilling .
 func (i *Filling) DomainFilling(ctx context.Context, req *QueryRequest) (*QueryResponse, error) {
-	err := i.authorize(ctx)
-	if err != nil {
+	if err := i.authorize(ctx); err != nil {
 		return nil, err
 	}
 	return i.QueryFilling(ctx, req)

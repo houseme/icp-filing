@@ -29,7 +29,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func initLog(path string) {
+func initLog(path string, level hlog.Level) {
 	dynamicLevel := zap.NewAtomicLevel()
 	dynamicLevel.SetLevel(zap.DebugLevel)
 	logger := hertzzap.NewLogger(
@@ -79,6 +79,8 @@ func initLog(path string) {
 		}...),
 	)
 	defer logger.Sync()
+	hlog.SetLogger(logger)
+	hlog.SetLevel(level)
 	hlog.Infof("filing start %s", time.Now().String())
 }
 

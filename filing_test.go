@@ -21,7 +21,10 @@ package filling
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 func TestICP_Md5(t *testing.T) {
@@ -124,35 +127,11 @@ func TestICP_authorize(t *testing.T) {
 				token: tt.fields.token,
 				ip:    tt.fields.ip,
 			}
-			i.initClientIP()
+			initLog(os.TempDir(), hlog.LevelInfo)
 			fmt.Println("icp:", i)
 			if err := i.authorize(tt.args.ctx); (err != nil) != tt.wantErr {
 				t.Errorf("authorize() error = %v, wantErr %v", err, tt.wantErr)
 			}
-		})
-	}
-}
-
-func TestICP_getIP(t *testing.T) {
-	type fields struct {
-		token string
-		ip    string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-	}{
-		{
-			name: "test",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			i := &Filling{
-				token: tt.fields.token,
-				ip:    tt.fields.ip,
-			}
-			i.initClientIP()
 		})
 	}
 }

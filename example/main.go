@@ -23,12 +23,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+
 	filing "github.com/houseme/icp-filing"
 )
 
 func main() {
 	ctx := context.Background()
-	f := filing.New(ctx, filing.WithLogPath(os.TempDir()))
+	f := filing.New(ctx, filing.WithLogPath(os.TempDir()), filing.WithLogLevel(hlog.LevelInfo))
 	resp, err := f.DomainFilling(ctx, &filing.QueryRequest{
 		UnitName: "baidu.com",
 	})
