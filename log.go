@@ -19,6 +19,7 @@
 package filling
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -29,7 +30,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func initLog(path string, level hlog.Level) {
+func (i *Filling) initLog(ctx context.Context, op options) {
 	dynamicLevel := zap.NewAtomicLevel()
 	dynamicLevel.SetLevel(zap.DebugLevel)
 	logger := hertzzap.NewLogger(
@@ -41,12 +42,12 @@ func initLog(path string, level hlog.Level) {
 			},
 			{
 				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
-				Ws:  getWriteSyncer(path + "/all.log"),
+				Ws:  getWriteSyncer(op.LogPath + "/all.log"),
 				Lvl: zap.NewAtomicLevelAt(zapcore.DebugLevel),
 			},
 			{
 				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
-				Ws:  getWriteSyncer(path + "/debug.log"),
+				Ws:  getWriteSyncer(op.LogPath + "/debug.log"),
 				Lvl: zap.NewAtomicLevelAt(zapcore.LevelOf(
 					zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
 						return lev == zap.DebugLevel
@@ -54,7 +55,7 @@ func initLog(path string, level hlog.Level) {
 			},
 			{
 				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
-				Ws:  getWriteSyncer(path + "/info.log"),
+				Ws:  getWriteSyncer(op.LogPath + "/info.log"),
 				Lvl: zap.NewAtomicLevelAt(zapcore.LevelOf(
 					zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
 						return lev == zap.InfoLevel
@@ -62,7 +63,7 @@ func initLog(path string, level hlog.Level) {
 			},
 			{
 				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
-				Ws:  getWriteSyncer(path + "/warn.log"),
+				Ws:  getWriteSyncer(op.LogPath + "/warn.log"),
 				Lvl: zap.NewAtomicLevelAt(zapcore.LevelOf(
 					zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
 						return lev == zap.WarnLevel
@@ -70,7 +71,7 @@ func initLog(path string, level hlog.Level) {
 			},
 			{
 				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
-				Ws:  getWriteSyncer(path + "/error.log"),
+				Ws:  getWriteSyncer(op.LogPath + "/error.log"),
 				Lvl: zap.NewAtomicLevelAt(zapcore.LevelOf(
 					zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
 						return lev >= zap.ErrorLevel
@@ -80,8 +81,10 @@ func initLog(path string, level hlog.Level) {
 	)
 	defer logger.Sync()
 	hlog.SetLogger(logger)
-	hlog.SetLevel(level)
-	hlog.Infof("filing start %s", time.Now().String())
+	hlog.SetLevel(op.LogLevel)
+	i.log = logger
+	i.log.SetLevel(op.LogLevel)
+	i.log.CtxInfof(ctx, "filing start %s", time.Now().String())
 }
 
 // humanEncoderConfig copy from zap

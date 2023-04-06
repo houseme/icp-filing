@@ -127,7 +127,7 @@ func TestICP_authorize(t *testing.T) {
 				token: tt.fields.token,
 				ip:    tt.fields.ip,
 			}
-			initLog(os.TempDir(), hlog.LevelInfo)
+			i.initLog(context.Background(), options{LogPath: os.TempDir(), LogLevel: hlog.LevelInfo})
 			fmt.Println("icp:", i)
 			if err := i.authorize(tt.args.ctx); (err != nil) != tt.wantErr {
 				t.Errorf("authorize() error = %v, wantErr %v", err, tt.wantErr)

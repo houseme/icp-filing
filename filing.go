@@ -53,6 +53,7 @@ const (
 type Filling struct {
 	token string
 	ip    string
+	log   hlog.FullLogger
 }
 
 type options struct {
@@ -80,7 +81,7 @@ func WithLogLevel(level hlog.Level) Option {
 }
 
 // New return a new filling number object
-func New(_ context.Context, opts ...Option) *Filling {
+func New(ctx context.Context, opts ...Option) *Filling {
 	var op = options{
 		LogPath:  os.TempDir(),
 		LogLevel: hlog.LevelDebug,
@@ -88,11 +89,12 @@ func New(_ context.Context, opts ...Option) *Filling {
 	for _, opt := range opts {
 		opt(&op)
 	}
-	initLog(op.LogPath, op.LogLevel)
-	return &Filling{
+	f := &Filling{
 		token: defaultToken,
 		ip:    "101." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255)),
 	}
+	f.initLog(ctx, op)
+	return f
 }
 
 // doRequest execute request
@@ -105,7 +107,6 @@ func (i *Filling) doRequest(ctx context.Context, in *ParamInput) ([]byte, error)
 	}
 
 	req := &protocol.Request{}
-	res := &protocol.Response{}
 	req.Header.Set("Content-Type", in.ContentType)
 	req.Header.Set("Origin", "https://beian.miit.gov.cn/")
 	req.Header.Set("Referer", "https://beian.miit.gov.cn/")
@@ -116,26 +117,26 @@ func (i *Filling) doRequest(ctx context.Context, in *ParamInput) ([]byte, error)
 	req.Header.SetMethod(consts.MethodPost)
 	req.SetRequestURI("https://hlwicpfwc.miit.gov.cn/icpproject_query/api/" + in.Path)
 
-	hlog.CtxDebugf(ctx, "do request in url: %s, params: %s", req.RequestURI(), in.String())
+	i.log.CtxDebugf(ctx, "do request in url: %s, params: %s", req.RequestURI(), in.String())
 	if in.Path != authorizePath {
 		jsonByte, err := json.Marshal(in.QueryRequest)
 		if err != nil {
 			return nil, err
 		}
 		req.SetBody(jsonByte)
-		hlog.CtxDebugf(ctx, "do request in json body: %s", string(jsonByte))
+		i.log.CtxDebugf(ctx, "do request in json body: %s", string(jsonByte))
 	} else {
 		req.SetFormData(map[string]string{
 			"authKey":   in.AuthorizeRequest.AuthKey,
 			"timeStamp": in.AuthorizeRequest.Timestamp,
 		})
-		hlog.CtxDebugf(ctx, "do request in form data body: %s", string(req.PostArgString()))
+		i.log.CtxDebugf(ctx, "do request in form data body: %s", string(req.PostArgString()))
 	}
-
+	res := &protocol.Response{}
 	if err = hc.Do(ctx, req, res); err != nil {
 		return nil, err
 	}
-	hlog.CtxDebugf(ctx, "do request out status code: %d , body: %s", res.StatusCode(), string(res.Body()))
+	i.log.CtxDebugf(ctx, "do request out status code: %d , body: %s", res.StatusCode(), string(res.Body()))
 	if res.StatusCode() >= http.StatusMultipleChoices {
 		return nil, errors.New(`请求接口 ` + in.Path + ` 失败! ,返回状态码: ` + strconv.Itoa(res.StatusCode()) + ` 返回内容: ` + string(res.Body()))
 	}
