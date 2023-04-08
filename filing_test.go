@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -132,6 +133,75 @@ func TestICP_authorize(t *testing.T) {
 			if err := i.authorize(tt.args.ctx); (err != nil) != tt.wantErr {
 				t.Errorf("authorize() error = %v, wantErr %v", err, tt.wantErr)
 			}
+		})
+	}
+}
+
+func TestFilling_DomainFilling(t *testing.T) {
+	type fields struct {
+		token string
+		ip    string
+		log   hlog.FullLogger
+	}
+	type args struct {
+		ctx context.Context
+		req *QueryRequest
+	}
+	var (
+		ctx = context.Background()
+		f   = New(ctx, WithLogLevel(hlog.LevelInfo), WithLogPath(os.TempDir()))
+	)
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *QueryResponse
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "TestFilling_DomainFilling",
+			fields: fields{
+				token: "0",
+				ip:    "101.123.124.119",
+			},
+			args: args{
+				ctx: ctx,
+				req: &QueryRequest{
+					UnitName: "baidu.com",
+				},
+			},
+			want:    nil,
+			wantErr: false,
+		},
+		{
+			name: "TestFilling_DomainFilling",
+			fields: fields{
+				token: "0",
+				ip:    "101.123.124.119",
+			},
+			args: args{
+				ctx: ctx,
+				req: &QueryRequest{
+					UnitName: "qq.com",
+				},
+			},
+			want:    nil,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := f
+			got, err := i.DomainFilling(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DomainFilling() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DomainFilling() got = %v, want %v", got, tt.want)
+			}
+			t.Log(got)
 		})
 	}
 }
