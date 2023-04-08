@@ -16,7 +16,7 @@
  *  You can obtain one at https://github.com/houseme/icp-filing.
  */
 
-// Package filling .
+// Package filling is the icp filling number
 package filling
 
 import (
