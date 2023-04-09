@@ -37,6 +37,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+
+	"github.com/houseme/icp-filing/tld"
 )
 
 const (
@@ -47,6 +49,12 @@ const (
 	queryContentType     = "application/json;charset=UTF-8"
 
 	defaultToken = "0"
+
+	domainLevel = 0
+
+	randomIP = "101.%d.%d.%d"
+
+	maxRetry = 255
 )
 
 // Filling is the icp filling number object
@@ -91,7 +99,7 @@ func New(ctx context.Context, opts ...Option) *Filling {
 	}
 	f := &Filling{
 		token: defaultToken,
-		ip:    "101." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255)) + "." + strconv.Itoa(rand.Intn(255)),
+		ip:    fmt.Sprintf(randomIP, rand.Intn(maxRetry), rand.Intn(maxRetry), rand.Intn(maxRetry)),
 	}
 	f.initLog(ctx, op)
 	return f
@@ -204,8 +212,22 @@ func (i *Filling) String() string {
 
 // DomainFilling query domain filling number
 func (i *Filling) DomainFilling(ctx context.Context, req *QueryRequest) (*QueryResponse, error) {
+	if req == nil {
+		return nil, errors.New("request is nil")
+	}
+
+	if req.UnitName == "" && req.Link != "" {
+		resp, err := tld.GetTLD(ctx, req.Link, domainLevel)
+		if err != nil {
+			return nil, err
+		}
+		i.log.CtxDebugf(ctx, "GetTld resp: %s", resp.String())
+		req.UnitName = resp.Domain
+	}
+
 	if err := i.authorize(ctx); err != nil {
 		return nil, err
 	}
+
 	return i.QueryFilling(ctx, req)
 }

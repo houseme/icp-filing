@@ -28,7 +28,8 @@ import (
 type QueryRequest struct {
 	PageNum  string `json:"pageNum"`
 	PageSize string `json:"pageSize"`
-	UnitName string `json:"unitName"`
+	UnitName string `json:"unitName" description:"unit name"`
+	Link     string `json:"link" description:"link"`
 }
 
 // String return query request string
