@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/bytedance/sonic v1.8.7
 	github.com/cloudwego/hertz v0.6.2
-	github.com/hertz-contrib/logger/zap v0.0.0-20230320032231-b153fe729ee7
+	github.com/hertz-contrib/logger/zap v1.0.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	go.uber.org/zap v1.24.0
 )
