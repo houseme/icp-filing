@@ -3,7 +3,7 @@ module github.com/houseme/icp-filing
 go 1.19
 
 require (
-	github.com/bytedance/sonic v1.8.9
+	github.com/bytedance/sonic v1.8.10
 	github.com/cloudwego/hertz v0.6.3
 	github.com/hertz-contrib/logger/zap v1.0.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
