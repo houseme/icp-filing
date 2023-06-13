@@ -48,6 +48,8 @@ const (
 	authorizeContentType = "application/x-www-form-urlencoded;charset=UTF-8"
 	queryContentType     = "application/json;charset=UTF-8"
 
+	originAndReferer = "https://beian.miit.gov.cn/"
+
 	defaultToken = "0"
 
 	domainLevel = 0
@@ -116,8 +118,8 @@ func (i *Filling) doRequest(ctx context.Context, in *ParamInput) ([]byte, error)
 
 	req := &protocol.Request{}
 	req.Header.Set("Content-Type", in.ContentType)
-	req.Header.Set("Origin", "https://beian.miit.gov.cn/")
-	req.Header.Set("Referer", "https://beian.miit.gov.cn/")
+	req.Header.Set("Origin", originAndReferer)
+	req.Header.Set("Referer", originAndReferer)
 	req.Header.Set("token", i.token)
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36")
 	req.Header.Set("CLIENT_IP", i.ip)
@@ -146,7 +148,7 @@ func (i *Filling) doRequest(ctx context.Context, in *ParamInput) ([]byte, error)
 	}
 	i.log.CtxDebugf(ctx, "do request out status code: %d , body: %s", res.StatusCode(), string(res.Body()))
 	if res.StatusCode() >= http.StatusMultipleChoices {
-		return nil, errors.New(`请求接口 ` + in.Path + ` 失败! ,返回状态码: ` + strconv.Itoa(res.StatusCode()) + ` 返回内容: ` + string(res.Body()))
+		return nil, errors.New(`request interface: ` + in.Path + ` failed ! ,returns the status code: ` + strconv.Itoa(res.StatusCode()) + ` and the content: ` + string(res.Body()))
 	}
 
 	return res.Body(), nil
@@ -173,7 +175,7 @@ func (i *Filling) authorize(ctx context.Context) error {
 		return err
 	}
 	if response == nil {
-		return fmt.Errorf("response is nil")
+		return errors.New("response is nil")
 	}
 	if !response.Success {
 		return errors.New("code: " + strconv.Itoa(response.Code) + " errMsg: " + response.Msg)
