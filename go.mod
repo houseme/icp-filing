@@ -3,7 +3,7 @@ module github.com/houseme/icp-filing
 go 1.19
 
 require (
-	github.com/bytedance/sonic v1.9.2
+	github.com/bytedance/sonic v1.10.0
 	github.com/cloudwego/hertz v0.6.7
 	github.com/hertz-contrib/logger/zap v1.0.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
@@ -16,7 +16,8 @@ require (
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.8 // indirect
 	github.com/bytedance/gopkg v0.0.0-20230531144706-a12972768317 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
+	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/cloudwego/netpoll v0.3.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
