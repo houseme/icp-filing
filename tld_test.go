@@ -20,13 +20,12 @@ package filling
 
 import (
 	"context"
-	"os"
 	"reflect"
 	"testing"
 
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-
 	"github.com/houseme/icp-filing/tld"
+	"github.com/houseme/icp-filing/utility/logger"
+	"github.com/houseme/icp-filing/utility/request"
 )
 
 func TestFilling_DomainTLD(t *testing.T) {
@@ -38,7 +37,7 @@ func TestFilling_DomainTLD(t *testing.T) {
 
 	var (
 		ctx = context.Background()
-		f   = New(ctx, WithLogLevel(hlog.LevelInfo), WithLogPath(os.TempDir()))
+		f   = New(ctx, WithLogger(logger.NewDefaultLogger()), WithRequest(request.NewDefaultRequest()))
 	)
 
 	tests := []struct {

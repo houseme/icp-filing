@@ -16,26 +16,4 @@
  *  You can obtain one at https://github.com/houseme/icp-filing.
  */
 
-package main
-
-import (
-	"context"
-	"fmt"
-
-	filing "github.com/houseme/icp-filing"
-	"github.com/houseme/icp-filing/utility/logger"
-	"github.com/houseme/icp-filing/utility/request"
-)
-
-func main() {
-	ctx := context.Background()
-	f := filing.New(ctx, filing.WithLogger(logger.NewDefaultLogger()), filing.WithRequest(request.NewDefaultRequest()))
-	resp, err := f.DomainFilling(ctx, &filing.QueryRequest{
-		UnitName: "baidu.com",
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("resp:", resp)
-}
+package utility

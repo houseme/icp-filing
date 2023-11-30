@@ -16,6 +16,7 @@
  *  You can obtain one at https://github.com/houseme/icp-filing.
  */
 
+// Package tld domain extension
 package tld
 
 import (
@@ -41,7 +42,7 @@ func GetTLD(ctx context.Context, url string, level int) (resp *DomainTLDResp, er
 	return parseDomainTLD(ctx, url, level)
 }
 
-// GetSubdomain get a subdomain from a url
+// GetSubdomain get a subdomain from URL
 func GetSubdomain(ctx context.Context, url string, level int) (subdomain, domain, tld string) {
 	resp, err := parseDomainTLD(ctx, url, level)
 	if err != nil {
@@ -50,7 +51,7 @@ func GetSubdomain(ctx context.Context, url string, level int) (subdomain, domain
 	return resp.SubDomain, resp.Domain, resp.Tld
 }
 
-// parseDomainTLD parse domain tld
+// parseDomainTLD parse domain TLD
 func parseDomainTLD(_ context.Context, url string, level int) (resp *DomainTLDResp, err error) {
 	var (
 		buffer = pool.Get().(*bytes.Buffer)

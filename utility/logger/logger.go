@@ -16,26 +16,21 @@
  *  You can obtain one at https://github.com/houseme/icp-filing.
  */
 
-package main
+// Package logger is an interface
+package logger
 
 import (
 	"context"
-	"fmt"
-
-	filing "github.com/houseme/icp-filing"
-	"github.com/houseme/icp-filing/utility/logger"
-	"github.com/houseme/icp-filing/utility/request"
 )
 
-func main() {
-	ctx := context.Background()
-	f := filing.New(ctx, filing.WithLogger(logger.NewDefaultLogger()), filing.WithRequest(request.NewDefaultRequest()))
-	resp, err := f.DomainFilling(ctx, &filing.QueryRequest{
-		UnitName: "baidu.com",
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("resp:", resp)
+// ILogger is an interface
+type ILogger interface {
+	Debug(ctx context.Context, v ...interface{})
+	Debugf(ctx context.Context, format string, v ...interface{})
+	Info(ctx context.Context, v ...interface{})
+	Infof(ctx context.Context, format string, v ...interface{})
+	Error(ctx context.Context, v ...interface{})
+	Errorf(ctx context.Context, format string, v ...interface{})
+	Fatal(ctx context.Context, v ...interface{})
+	Fatalf(ctx context.Context, format string, v ...interface{})
 }

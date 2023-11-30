@@ -22,23 +22,16 @@ package filling
 import (
 	"context"
 	"crypto/md5"
-	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
-	"net/http"
-	"os"
 	"strconv"
 	"time"
 
-	"github.com/bytedance/sonic"
-	"github.com/cloudwego/hertz/pkg/app/client"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/common/json"
-	"github.com/cloudwego/hertz/pkg/protocol"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
 	"github.com/houseme/icp-filing/tld"
+	"github.com/houseme/icp-filing/utility/logger"
+	"github.com/houseme/icp-filing/utility/request"
 )
 
 const (
@@ -61,97 +54,80 @@ const (
 
 // Filling is the icp filling number object
 type Filling struct {
-	token string
-	ip    string
-	log   hlog.FullLogger
+	token   string
+	ip      string
+	request request.Request
+	logger  logger.ILogger
 }
 
 type options struct {
-	// LogPath is the path of log file.
-	LogPath string
-	// LogLevel is the level of log.
-	LogLevel hlog.Level
+	Request request.Request
+	Logger  logger.ILogger
 }
 
 // Option is the option for logger.
 type Option func(o *options)
 
-// WithLogPath is the option for log path.
-func WithLogPath(path string) Option {
+// WithRequest is the option for request.
+func WithRequest(req request.Request) Option {
 	return func(o *options) {
-		o.LogPath = path
+		o.Request = req
 	}
 }
 
-// WithLogLevel is the option for log level.
-func WithLogLevel(level hlog.Level) Option {
+// WithLogger is the option for logger.
+func WithLogger(logger logger.ILogger) Option {
 	return func(o *options) {
-		o.LogLevel = level
+		o.Logger = logger
 	}
 }
 
 // New return a new filling number object
 func New(ctx context.Context, opts ...Option) *Filling {
-	var op = options{
-		LogPath:  os.TempDir(),
-		LogLevel: hlog.LevelDebug,
-	}
+	var op = options{}
 	for _, opt := range opts {
 		opt(&op)
 	}
 	f := &Filling{
-		token: defaultToken,
-		ip:    fmt.Sprintf(randomIP, rand.Intn(maxRetry), rand.Intn(maxRetry), rand.Intn(maxRetry)),
+		token:   defaultToken,
+		ip:      fmt.Sprintf(randomIP, rand.Intn(maxRetry), rand.Intn(maxRetry), rand.Intn(maxRetry)),
+		logger:  op.Logger,
+		request: op.Request,
 	}
-	f.initLog(ctx, op)
 	return f
 }
 
 // doRequest execute request
 func (i *Filling) doRequest(ctx context.Context, in *ParamInput) ([]byte, error) {
-	hc, err := client.NewClient(client.WithTLSConfig(&tls.Config{
-		InsecureSkipVerify: true,
-	}), client.WithDialTimeout(30*time.Second))
-	if err != nil {
-		return nil, err
+	headMap := map[string]string{
+		"Content-Type":    in.ContentType,
+		"Origin":          originAndReferer,
+		"Referer":         originAndReferer,
+		"token":           i.token,
+		"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36",
+		"CLIENT_IP":       i.ip,
+		"X-FORWARDED-FOR": i.ip,
 	}
-
-	req := &protocol.Request{}
-	req.Header.Set("Content-Type", in.ContentType)
-	req.Header.Set("Origin", originAndReferer)
-	req.Header.Set("Referer", originAndReferer)
-	req.Header.Set("token", i.token)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36")
-	req.Header.Set("CLIENT_IP", i.ip)
-	req.Header.Set("X-FORWARDED-FOR", i.ip)
-	req.Header.SetMethod(consts.MethodPost)
-	req.SetRequestURI("https://hlwicpfwc.miit.gov.cn/icpproject_query/api/" + in.Path)
-
-	i.log.CtxDebugf(ctx, "do request in url: %s, params: %s", req.RequestURI(), in.String())
+	url := "https://hlwicpfwc.miit.gov.cn/icpproject_query/api/" + in.Path
+	i.logger.Debugf(ctx, "do request in url: %s, params: %s", url, in.String())
+	var (
+		resp []byte
+		err  error
+	)
 	if in.Path != authorizePath {
-		jsonByte, err := json.Marshal(in.QueryRequest)
-		if err != nil {
-			return nil, err
-		}
-		req.SetBody(jsonByte)
-		i.log.CtxDebugf(ctx, "do request in json body: %s", string(jsonByte))
+		resp, err = i.request.PostJSON(ctx, url, in.QueryRequest, headMap)
 	} else {
-		req.SetFormData(map[string]string{
+		var jsonByte []byte
+		if jsonByte, err = json.Marshal(map[string]string{
 			"authKey":   in.AuthorizeRequest.AuthKey,
 			"timeStamp": in.AuthorizeRequest.Timestamp,
-		})
-		i.log.CtxDebugf(ctx, "do request in form data body: %s", string(req.PostArgString()))
-	}
-	res := &protocol.Response{}
-	if err = hc.Do(ctx, req, res); err != nil {
-		return nil, err
-	}
-	i.log.CtxDebugf(ctx, "do request out status code: %d , body: %s", res.StatusCode(), string(res.Body()))
-	if res.StatusCode() >= http.StatusMultipleChoices {
-		return nil, errors.New(`request interface: ` + in.Path + ` failed ! ,returns the status code: ` + strconv.Itoa(res.StatusCode()) + ` and the content: ` + string(res.Body()))
+		}); err != nil {
+			return nil, err
+		}
+		resp, err = i.request.Post(ctx, url, jsonByte, headMap)
 	}
 
-	return res.Body(), nil
+	return resp, err
 }
 
 // authorize .
@@ -171,7 +147,7 @@ func (i *Filling) authorize(ctx context.Context) error {
 		return err
 	}
 	var response *AuthorizeResponse
-	if err = sonic.Unmarshal(resp, &response); err != nil {
+	if err = json.Unmarshal(resp, &response); err != nil {
 		return err
 	}
 	if response == nil {
@@ -196,7 +172,7 @@ func (i *Filling) QueryFilling(ctx context.Context, req *QueryRequest) (*QueryRe
 		return nil, err
 	}
 	var queryResp *QueryResponse
-	if err = sonic.Unmarshal(resp, &queryResp); err != nil {
+	if err = json.Unmarshal(resp, &queryResp); err != nil {
 		return nil, err
 	}
 	return queryResp, nil
@@ -204,7 +180,7 @@ func (i *Filling) QueryFilling(ctx context.Context, req *QueryRequest) (*QueryRe
 
 // md5 .
 func (i *Filling) md5(str string) string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(str))) // 将[]byte转成16进制
+	return fmt.Sprintf("%x", md5.Sum([]byte(str))) // 将 []byte 转成 16 进制
 }
 
 // String return filling json string
@@ -223,7 +199,7 @@ func (i *Filling) DomainFilling(ctx context.Context, req *QueryRequest) (*QueryR
 		if err != nil {
 			return nil, err
 		}
-		i.log.CtxDebugf(ctx, "GetTld resp: %s", resp.String())
+		i.logger.Debugf(ctx, "GetTld resp: %s", resp.String())
 		req.UnitName = resp.Domain
 	}
 

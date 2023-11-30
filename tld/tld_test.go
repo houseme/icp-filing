@@ -20,7 +20,6 @@ package tld
 
 import (
 	"context"
-	"fmt"
 	"testing"
 )
 
@@ -28,13 +27,11 @@ var testUrls = []string{"www.google.com.hk", "www.discuz.net", "com",
 	"www.discuz.vip", "www.ritto.shiga.jp", "ritto.shiga.jp", "mp.weixin.qq.com", "jonsen.yang.cn"}
 
 func TestGetTld(t *testing.T) {
-	// url := "www.google.com.hk"
 	ctx := context.Background()
 	for _, url := range testUrls {
 		ss, dd, tld := GetSubdomain(ctx, url, 2)
-		fmt.Println("GetSubdomain:", ss, dd, tld)
+		t.Logf("resp：%s: %v, %s, %s\n", url, ss, dd, tld)
 		resp, err := GetTLD(ctx, url, 0)
-		fmt.Println("GetTld: ", resp, err)
 		if nil != err {
 			t.Error("Failed get TLD:" + err.Error())
 			return
@@ -50,7 +47,7 @@ func BenchmarkGetTld(b *testing.B) {
 	b.ResetTimer()
 	ctx := context.Background()
 	for i := 0; i < b.N; i++ {
-		GetTLD(ctx, "www.aaa.bbb.ccc.ddd.forease.com.cn", 0)
+		_, _ = GetTLD(ctx, "www.aaa.bbb.ccc.ddd.forease.com.cn", 0)
 	}
 }
 

@@ -21,11 +21,11 @@ package filling
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/houseme/icp-filing/utility/logger"
+	"github.com/houseme/icp-filing/utility/request"
 )
 
 func TestICP_Md5(t *testing.T) {
@@ -128,7 +128,6 @@ func TestICP_authorize(t *testing.T) {
 				token: tt.fields.token,
 				ip:    tt.fields.ip,
 			}
-			i.initLog(context.Background(), options{LogPath: os.TempDir(), LogLevel: hlog.LevelInfo})
 			fmt.Println("icp:", i)
 			if err := i.authorize(tt.args.ctx); (err != nil) != tt.wantErr {
 				t.Errorf("authorize() error = %v, wantErr %v", err, tt.wantErr)
@@ -141,7 +140,6 @@ func TestFilling_DomainFilling(t *testing.T) {
 	type fields struct {
 		token string
 		ip    string
-		log   hlog.FullLogger
 	}
 	type args struct {
 		ctx context.Context
@@ -149,7 +147,7 @@ func TestFilling_DomainFilling(t *testing.T) {
 	}
 	var (
 		ctx = context.Background()
-		f   = New(ctx, WithLogLevel(hlog.LevelInfo), WithLogPath(os.TempDir()))
+		f   = New(ctx, WithLogger(logger.NewDefaultLogger()), WithRequest(request.NewDefaultRequest()))
 	)
 	tests := []struct {
 		name    string

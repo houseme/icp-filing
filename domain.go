@@ -19,9 +19,8 @@
 package filling
 
 import (
+	"encoding/json"
 	"strconv"
-
-	"github.com/bytedance/sonic"
 )
 
 // QueryRequest query request
@@ -89,11 +88,11 @@ func (r *QueryParams) NavigatePageNumsString() string {
 	if r.NavigatePageNums == nil || len(r.NavigatePageNums) < 1 {
 		return ""
 	}
-	output, err := sonic.MarshalString(r.NavigatePageNums)
+	output, err := json.Marshal(r.NavigatePageNums)
 	if err != nil {
 		return ""
 	}
-	return output
+	return string(output)
 }
 
 // ParamsListString return params list to string
@@ -101,11 +100,11 @@ func (r *QueryParams) ParamsListString() string {
 	if r.List == nil || len(r.List) < 1 {
 		return ""
 	}
-	output, err := sonic.MarshalString(r.List)
+	output, err := json.Marshal(r.List)
 	if err != nil {
 		return ""
 	}
-	return output
+	return string(output)
 }
 
 // DomainInfo domain info
