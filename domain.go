@@ -25,15 +25,16 @@ import (
 
 // QueryRequest query request
 type QueryRequest struct {
-	PageNum  string `json:"pageNum"`
-	PageSize string `json:"pageSize"`
-	UnitName string `json:"unitName" description:"unit name"`
-	Link     string `json:"link" description:"link"`
+	PageNum     string `json:"pageNum"`
+	PageSize    string `json:"pageSize"`
+	UnitName    string `json:"unitName" description:"unit name"`
+	Link        string `json:"link,omitempty" description:"link"`
+	ServiceType int    `json:"serviceType" description:"serviceType：1 网站，6 APP，7 小程序，8 快应用"`
 }
 
 // String return query request string
 func (r *QueryRequest) String() string {
-	return `{"pageNum": "` + r.PageNum + `", "pageSize": "` + r.PageSize + `", "unitName": "` + r.UnitName + `"}`
+	return `{"pageNum": "` + r.PageNum + `", "pageSize": "` + r.PageSize + `", "unitName": "` + r.UnitName + `","link": "` + r.Link + `", "serviceType": ` + strconv.Itoa(r.ServiceType) + `}`
 }
 
 // QueryResponse query response

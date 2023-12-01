@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -41,7 +42,8 @@ const (
 	authorizeContentType = "application/x-www-form-urlencoded;charset=UTF-8"
 	queryContentType     = "application/json;charset=UTF-8"
 
-	originAndReferer = "https://beian.miit.gov.cn/"
+	httpOrigin  = "https://beian.miit.gov.cn"
+	httpReferer = "https://beian.miit.gov.cn/"
 
 	defaultToken = "0"
 
@@ -49,7 +51,7 @@ const (
 
 	randomIP = "101.%d.%d.%d"
 
-	maxRetry = 255
+	maxValue = 255
 )
 
 // Filling is the icp filling number object
@@ -90,7 +92,7 @@ func New(ctx context.Context, opts ...Option) *Filling {
 	}
 	f := &Filling{
 		token:   defaultToken,
-		ip:      fmt.Sprintf(randomIP, rand.Intn(maxRetry), rand.Intn(maxRetry), rand.Intn(maxRetry)),
+		ip:      fmt.Sprintf(randomIP, rand.Intn(maxValue), rand.Intn(maxValue), rand.Intn(maxValue)),
 		logger:  op.Logger,
 		request: op.Request,
 	}
@@ -98,36 +100,30 @@ func New(ctx context.Context, opts ...Option) *Filling {
 }
 
 // doRequest execute request
-func (i *Filling) doRequest(ctx context.Context, in *ParamInput) ([]byte, error) {
+func (i *Filling) doRequest(ctx context.Context, in *ParamInput) (resp []byte, err error) {
 	headMap := map[string]string{
 		"Content-Type":    in.ContentType,
-		"Origin":          originAndReferer,
-		"Referer":         originAndReferer,
-		"token":           i.token,
+		"Origin":          httpOrigin,
+		"Referer":         httpReferer,
+		"Token":           i.token,
 		"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36",
 		"CLIENT_IP":       i.ip,
 		"X-FORWARDED-FOR": i.ip,
+		"Sign":            i.token,
 	}
-	url := "https://hlwicpfwc.miit.gov.cn/icpproject_query/api/" + in.Path
-	i.logger.Debugf(ctx, "do request in url: %s, params: %s", url, in.String())
-	var (
-		resp []byte
-		err  error
-	)
+	i.logger.Debugf(ctx, "do request in params: %s", in.String())
 	if in.Path != authorizePath {
-		resp, err = i.request.PostJSON(ctx, url, in.QueryRequest, headMap)
+		resp, err = i.request.PostJSON(ctx, "https://hlwicpfwc.miit.gov.cn/icpproject_query/api/"+in.Path, in.QueryRequest, headMap)
 	} else {
-		var jsonByte []byte
-		if jsonByte, err = json.Marshal(map[string]string{
-			"authKey":   in.AuthorizeRequest.AuthKey,
-			"timeStamp": in.AuthorizeRequest.Timestamp,
-		}); err != nil {
-			return nil, err
-		}
-		resp, err = i.request.Post(ctx, url, jsonByte, headMap)
+		data := url.Values{}
+		data.Set("authKey", in.AuthorizeRequest.AuthKey)
+		data.Set("timeStamp", in.AuthorizeRequest.Timestamp)
+		encodedData := data.Encode()
+		fmt.Println("encodedData:", encodedData)
+		resp, err = i.request.Post(ctx, "https://hlwicpfwc.miit.gov.cn/icpproject_query/api/"+in.Path, []byte(encodedData), headMap)
 	}
 
-	return resp, err
+	return
 }
 
 // authorize .
@@ -183,7 +179,7 @@ func (i *Filling) md5(str string) string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(str))) // 将 []byte 转成 16 进制
 }
 
-// String return filling json string
+// String return filling JSON string
 func (i *Filling) String() string {
 	return `{"ip":"` + i.ip + `","token":"` + i.token + `"}`
 }

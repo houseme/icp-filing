@@ -165,7 +165,8 @@ func TestFilling_DomainFilling(t *testing.T) {
 			args: args{
 				ctx: ctx,
 				req: &QueryRequest{
-					UnitName: "baidu.com",
+					UnitName:    "baidu.com",
+					ServiceType: 1,
 				},
 			},
 			want:    nil,
@@ -180,7 +181,8 @@ func TestFilling_DomainFilling(t *testing.T) {
 			args: args{
 				ctx: ctx,
 				req: &QueryRequest{
-					UnitName: "qq.com",
+					UnitName:    "qq.com",
+					ServiceType: 1,
 				},
 			},
 			want:    nil,

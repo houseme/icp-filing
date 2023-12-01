@@ -125,7 +125,6 @@ func (srv *DefaultRequest) PostJSON(ctx context.Context, url string, data any, h
 	if err := enc.Encode(data); err != nil {
 		return nil, err
 	}
-
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, jsonBuf)
 	if err != nil {
 		return nil, err
@@ -137,8 +136,6 @@ func (srv *DefaultRequest) PostJSON(ctx context.Context, url string, data any, h
 			}
 		}
 	}
-	req.Header.Set(headerContentType, headerContentTypeValue)
-	req.Header.Set(headerUserAgent, headerUserAgentValue)
 	client := http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
