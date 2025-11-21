@@ -19,7 +19,7 @@ jobs:
         go: [ "1.21", "1.22", "1.23" ]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up Go
         uses: actions/setup-go@v6
